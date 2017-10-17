@@ -20,7 +20,7 @@ public class SortedFloatArray {
     // комментариев к ответу https://stackoverflow.com/a/16528236.
     private float[] _data = new float[ARRAY_SIZE];
     // Сгенерируем случайный индекс требуемого элемента. Да и тестировать удоно.
-    private int _desiredItemLocation = Math.abs(new Random().nextInt()) % ARRAY_SIZE;
+    public int _desiredItemLocation = Math.abs(new Random().nextInt()) % ARRAY_SIZE;
 
     // Конструктор генерирует случайные числа, соответсвующие условию задачи. За правило построения массива принята
     // прямая `y = kx + b`, при условии, что `k := i` и `b := 0`.
