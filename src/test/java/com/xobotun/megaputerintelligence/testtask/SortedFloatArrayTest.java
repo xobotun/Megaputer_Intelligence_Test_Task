@@ -1,5 +1,6 @@
 package com.xobotun.megaputerintelligence.testtask;
 
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 

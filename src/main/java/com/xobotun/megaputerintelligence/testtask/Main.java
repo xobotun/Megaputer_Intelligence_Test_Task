@@ -8,6 +8,6 @@ public class Main
         SortedFloatArray array = new SortedFloatArray();
 
         // Печать найденного элемента.
-        System.out.println("Found:  " + new ElementFinder().GetIndexOfDesiredElement(array));
+        System.out.println("Found:  " + new SimpleElementFinder().GetIndexOfDesiredElement(array));
     }
 }

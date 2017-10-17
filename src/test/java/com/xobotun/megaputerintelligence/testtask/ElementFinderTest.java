@@ -2,19 +2,33 @@ package com.xobotun.megaputerintelligence.testtask;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.mockito.Mockito;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+@RunWith(value = Parameterized.class)
 public class ElementFinderTest {
     public static ElementFinder Finder;
     public static SortedFloatArray Data;
     public static float[] UnwrappedData;
 
-    @BeforeClass
-    public static void Setup() {
-        Finder = new ElementFinder();
+    @Parameterized.Parameters
+    public static Collection GetDifferentImplementations() {
+        ArrayList implementations = new ArrayList(1);
+
+        implementations.add(SimpleElementFinder.class);
+
+        return implementations;
+    }
+
+    public ElementFinderTest(Class implementation) throws Exception {
+        Finder = (ElementFinder) implementation.newInstance();  // Этих исключений быть не должно. Если они есть, то что-то действително пошло не так.
         // Зачем гонять тесты на тяжелых данных, когда можно взять лёгкие и фальшивые?
         Data = mock(SortedFloatArray.class);
         when(Data.GetData()).thenReturn(new float[] {-1f, 0.5f, 2f, 2.5f, 3f});

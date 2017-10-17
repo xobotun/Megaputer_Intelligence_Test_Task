@@ -1,28 +1,20 @@
 package com.xobotun.megaputerintelligence.testtask;
 
-// Класс, инкапсулирующий алгоритм поиска требуемого элемента. Сейчас это бессиысленно, но потом здесь будет
-// многопоточный поиск.
-public class ElementFinder {
+public abstract class ElementFinder {
     // Функция, реализующая суть класса.
     // @param `data` – входной массив из миллиона элементов.
-    // @return Позиция первого элемента, у которого целая часть равна индексу. Если такого элемента нет,
-    // возвращает `-1`.
-    public int GetIndexOfDesiredElement(float[] data) {
-        for (int i = 0; i < data.length; ++i) {
-            if (IsElementDesired(i, data[i])) {
-                return i;
-            }
-        }
-        return -1;
-    }
+    // @return Позиция первого элемента, у которого целая часть равна индексу.
+    public abstract int GetIndexOfDesiredElement(float[] data);
 
-    // Перенруженная версия `GetIndexOfDesiredElement`. Принимает неразвёрнутый контейнер массива из миллиона
+    // Перегруженная версия `GetIndexOfDesiredElement`. Принимает неразвёрнутый контейнер массива из миллиона
     // элементов.
     // @see ElementFinder#GetIndexOfDesiredElement(float[] data)
-    public int GetIndexOfDesiredElement(SortedFloatArray data) {
-        return GetIndexOfDesiredElement(data.GetData());
-    }
+    public abstract int GetIndexOfDesiredElement(SortedFloatArray data);
 
+    // Функция, проверяющая, является ли конкретный элемент искомым.
+    // @param `position` – индекс элемента в массиве.
+    // @param `data` – элемент массива, расположенный по этому индексу. /*@contract*/
+    // @return `true`, если целая часть равна индексу. `false`, целая часть не равна индексу.
     public static boolean IsElementDesired(int position, float data) {
         return position == (int) data;
     }
