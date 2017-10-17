@@ -1,6 +1,5 @@
 package com.xobotun.megaputerintelligence.testtask;
 
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -21,7 +20,7 @@ public class SortedFloatArrayTest {
     public void TestNumberOfDesireElementsIsOnlyOne() {
         int desiredElementsCounter = 0;
         for (int i = 0; i < SortedFloatArray.ARRAY_SIZE; ++i) {
-            if (i == (int) UnwrappedData[i]) {
+            if (ElementFinder.IsElementDesired(i, UnwrappedData[i])) {
                 desiredElementsCounter++;
             }
         }
@@ -39,6 +38,6 @@ public class SortedFloatArrayTest {
     // `_desiredElementLocation` должен возвращать индекс действительно требуемого элемента.
     @Test
     public void TestDesiredElementLocationPointsToDesiredElement() {
-        assertTrue("GetDesiredItemLocation should return desired element location, not something else.", Data.GetDesiredItemLocation() == (int) UnwrappedData[Data.GetDesiredItemLocation()]);
+        assertTrue("GetDesiredItemLocation should return desired element location, not something else.", ElementFinder.IsElementDesired(Data.GetDesiredItemLocation(), UnwrappedData[Data.GetDesiredItemLocation()]));
     }
 }

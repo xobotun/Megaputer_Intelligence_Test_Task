@@ -9,7 +9,7 @@ public class ElementFinder {
     // возвращает `-1`.
     public int GetIndexOfDesiredElement(float[] data) {
         for (int i = 0; i < data.length; ++i) {
-            if (i == (int) data[i]) {
+            if (IsElementDesired(i, data[i])) {
                 return i;
             }
         }
@@ -21,5 +21,9 @@ public class ElementFinder {
     // @see ElementFinder#GetIndexOfDesiredElement(float[] data)
     public int GetIndexOfDesiredElement(SortedFloatArray data) {
         return GetIndexOfDesiredElement(data.GetData());
+    }
+
+    public static boolean IsElementDesired(int position, float data) {
+        return position == (int) data;
     }
 }
