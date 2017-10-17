@@ -9,8 +9,5 @@ public class Main
 
         // Печать найденного элемента.
         System.out.println("Found:  " + new ElementFinder().GetIndexOfDesiredElement(array));
-
-        // С интроспекцией у меня нее вышло, держите public-поле.
-        System.out.println("Actual: " + array._desiredItemLocation);
     }
 }
