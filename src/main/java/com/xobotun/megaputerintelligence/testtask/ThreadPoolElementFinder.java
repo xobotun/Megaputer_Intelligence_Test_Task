@@ -15,7 +15,7 @@ public class ThreadPoolElementFinder extends ElementFinder {
     private int _numberOfThreads = Runtime.getRuntime().availableProcessors();
 
     // Потоки, которые будут работать за нас.
-    private ExecutorService _threadPool = Executors.newFixedThreadPool(_numberOfThreads);
+    private ExecutorService _threadPool;
 
     // Будем хранить состояние объекта. Возможно, потом потребуется создать ElementFinderFactory.
     private float[] _data;
@@ -34,6 +34,12 @@ public class ThreadPoolElementFinder extends ElementFinder {
     // @return Позиция первого элемента, у которого целая часть равна индексу. Если такого элемента нет,
     // возвращает `-1`.
     public int GetIndexOfDesiredElement(float[] data) {
+        if (data == _data && _hasDesiredElementBeenFound) {
+            return _elementLocation;
+        } else {
+            _threadPool = Executors.newFixedThreadPool(_numberOfThreads);
+        }
+
         _data = data;
 
         // Назначем потокам количество элемментов для обработки.
