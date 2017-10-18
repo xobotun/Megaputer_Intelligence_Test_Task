@@ -23,6 +23,7 @@ public class ElementFinderTest {
         ArrayList implementations = new ArrayList(1);
 
         implementations.add(SimpleElementFinder.class);
+        implementations.add(ThreadPoolElementFinder.class);
 
         return implementations;
     }
@@ -46,9 +47,9 @@ public class ElementFinderTest {
     // Перегрузки `GetIndexOfDesiredElement` должены возвращать одинаковое значение.
     @Test
     public void TestGetIndexOfDesiredElementOverloadsReturnSame() {
-        int position1 = Finder.GetIndexOfDesiredElement(Data);
-        int position2 = Finder.GetIndexOfDesiredElement(Data.GetData());
-        assertEquals("GetIndexOfDesiredElement should return same value in both overloads", position2, position1);
+        int originalPosition = Finder.GetIndexOfDesiredElement(Data.GetData());
+        int overloadedPosition1 = Finder.GetIndexOfDesiredElement(Data);
+        assertEquals("GetIndexOfDesiredElement should return same value in both overloads", originalPosition, overloadedPosition1);
     }
 
     // `GetIndexOfDesiredElement` должен реализовывать проверку именно на то, что мы ищем.
