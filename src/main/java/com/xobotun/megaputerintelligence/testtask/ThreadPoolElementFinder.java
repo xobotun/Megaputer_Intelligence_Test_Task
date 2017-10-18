@@ -48,50 +48,47 @@ public class ThreadPoolElementFinder extends ElementFinder {
             int localOffset = offset;
 
             Future<Integer> taskResult = _threadPool.submit(() -> {
-                System.out.println("Lambda created. #el:" + numberOfElements + " off:" + localOffset);
                 // Сам поисковый цикл.
                 for (int i = 0; i < numberOfElements; ++i) {
                     // Останов в случае, если кто-то другой уже нашёл искомый элемент. Бедный volatile.
                     if (_hasDesiredElementBeenFound) {
-                        System.out.println("Someone was faster...");
                         return -1;
                     }
                     // Сама суть
                     if (IsElementDesired(localOffset + i, data[localOffset + i])) {
                         _elementLocation = localOffset + i;
                         _hasDesiredElementBeenFound = true;
-                        System.out.println("I found it!");
                         return localOffset + i;
                     }
                 }
                 // Если искомый элемент находится не здесь.
-                System.out.println("No luck.");
                 return -1;
             });
             results.add(taskResult);
-            System.out.println("Task started: " + taskResult);
 
+            // Увеличиваем смещение для следующего потока.
             offset += numberOfElements;
         }
+
+        // Выключаем пул, чтобы программа могла завершиться.
+        _threadPool.shutdown();
 
         // Возвращаем значение из всех потоков. Ну, может, и блокирующий вызов.
         int result = 0xDEADBEEF;
         for (Future<Integer> task : results) {
-            int taskResult = 0xDEADBEEF;
             try {
-                taskResult = task.get();
+                // Получаем значение от одного из выполнившихся тасков.
+                int taskResult = task.get();
+                // Если корректное значение, то точно нашли.
+                if (taskResult != -1) {
+                    result = taskResult;
+                    break;
+                }
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
-            System.out.println("Task finished: " + task + " with answer " + taskResult);
-
-            // Если корректное значение, то точно нашли.
-            if (taskResult != -1) {
-                result = taskResult;
-            }
         }
-        System.out.println("actual~: " + _elementLocation);
-        _threadPool.shutdown();
+
         return result;
     }
 
