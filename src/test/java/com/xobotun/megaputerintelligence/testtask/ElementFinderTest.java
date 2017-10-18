@@ -40,7 +40,7 @@ public class ElementFinderTest {
     @Test
     public void TestGetIndexOfDesiredElementReturnsDesiredElementLocation() {
         int position = Finder.GetIndexOfDesiredElement(Data);
-        assertTrue("Element at GetIndexOfDesiredElement should satisfy requirements.", Finder.IsElementDesired(position, UnwrappedData[position]));
+        assertTrue("Element at GetIndexOfDesiredElement should satisfy requirements.", ElementFinder.IsElementDesired(position, UnwrappedData[position]));
     }
 
     // Перегрузки `GetIndexOfDesiredElement` должены возвращать одинаковое значение.
@@ -54,8 +54,8 @@ public class ElementFinderTest {
     // `GetIndexOfDesiredElement` должен реализовывать проверку именно на то, что мы ищем.
     @Test
     public void TestIsElementDesiredShouldImplementBusinessLogic() {
-        assertTrue("IsElementDesired should treat 3f at position 3 as desired element.", Finder.IsElementDesired(3, 3f));
-        assertFalse("IsElementDesired should not treat 4f at position 2 as desired element.", Finder.IsElementDesired(2, 4f));
+        assertTrue("IsElementDesired should treat 3f at position 3 as desired element.", ElementFinder.IsElementDesired(3, 3f));
+        assertFalse("IsElementDesired should not treat 4f at position 2 as desired element.", ElementFinder.IsElementDesired(2, 4f));
     }
 
 }

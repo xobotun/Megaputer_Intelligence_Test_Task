@@ -2,7 +2,7 @@ package com.xobotun.megaputerintelligence.testtask;
 
 // Класс, инкапсулирующий алгоритм поиска требуемого элемента. Сейчас это бессиысленно, но потом здесь будет
 // многопоточный поиск.
-public class SimpleElementFinder implements ElementFinder {
+public class SimpleElementFinder extends ElementFinder {
     // Функция, реализующая суть класса.
     // @param `data` – входной массив из миллиона элементов.
     // @return Позиция первого элемента, у которого целая часть равна индексу. Если такого элемента нет,
