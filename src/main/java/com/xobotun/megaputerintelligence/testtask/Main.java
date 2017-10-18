@@ -41,3 +41,9 @@ public class Main
 // CustomThreadPoolElementFinder обрабатывает 1_677_000_0 элементов за 14040 мкс в IDE и за 20423 мкс в Powershell Win10. Это печально.
 //
 // Вывод: я не умею в многопоточную джаву.
+//
+//  SimpleElementFinder 1_000_000 за 517 мкс.
+//  Слегка поправленный ThreadPoolElementFinder 1_000_000 за 2349 мкс.
+//  Жутко кривой CustomThreadPoolElementFinder 1_000_000 за 2833 мкс.
+//  С каждым шагом всё хуже.
+//  Буду доделывать потом...
