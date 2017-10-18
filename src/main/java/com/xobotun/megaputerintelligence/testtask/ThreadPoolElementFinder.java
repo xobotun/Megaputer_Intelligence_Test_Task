@@ -56,14 +56,10 @@ public class ThreadPoolElementFinder extends ElementFinder {
             Future<Integer> taskResult = _threadPool.submit(() -> {
                 // Сам поисковый цикл.
                 for (int i = 0; i < numberOfElements; ++i) {
-                    // Останов в случае, если кто-то другой уже нашёл искомый элемент. Бедный volatile.
-                    if (_hasDesiredElementBeenFound) {
-                        return -1;
-                    }
                     // Сама суть
                     if (IsElementDesired(localOffset + i, data[localOffset + i])) {
                         _elementLocation = localOffset + i;
-                        _hasDesiredElementBeenFound = true;
+                        _threadPool.shutdownNow();
                         return localOffset + i;
                     }
                 }
