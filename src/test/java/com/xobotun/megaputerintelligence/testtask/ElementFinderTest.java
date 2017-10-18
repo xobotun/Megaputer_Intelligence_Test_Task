@@ -24,6 +24,7 @@ public class ElementFinderTest {
 
         implementations.add(SimpleElementFinder.class);
         implementations.add(ThreadPoolElementFinder.class);
+        implementations.add(CustomThreadPoolElementFinder.class);
 
         return implementations;
     }

@@ -14,7 +14,7 @@ public class Main
             SortedFloatArray array = new SortedFloatArray();
 
             // Создаём искатель
-            ElementFinder finder = new ThreadPoolElementFinder();
+            ElementFinder finder = new CustomThreadPoolElementFinder();
 
             // Замеряем время.
             long started = System.nanoTime();
@@ -36,6 +36,8 @@ public class Main
 
 // Core i3-7300 @ 4 Ghz
 // SimpleElementFinder обрабатывает 1_677_000_0 элементов за 6079 мкс в IDE и за 7814 мкс в Powershell Win10.
-// ThreadPoolElementFinder обрабатывает 1_677_000_0 элементов за 12863 мкс в IDE и за 14539 в Powershell Win10. Но это с volatile.
-// ThreadPoolElementFinder обрабатывает 1_677_000_0 элементов за 6743 мкс в IDE и за 9237 в Powershell Win10. Это с выстрелом в ногу.
+// ThreadPoolElementFinder обрабатывает 1_677_000_0 элементов за 12863 мкс в IDE и за 14539 мкс в Powershell Win10. Но это с volatile.
+// ThreadPoolElementFinder обрабатывает 1_677_000_0 элементов за 6743 мкс в IDE и за 9237 мкс в Powershell Win10. Это с выстрелом в ногу.
+// CustomThreadPoolElementFinder обрабатывает 1_677_000_0 элементов за 14040 мкс в IDE и за 20423 мкс в Powershell Win10. Это печально.
 //
+// Вывод: я не умею в многопоточную джаву.
