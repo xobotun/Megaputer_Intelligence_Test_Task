@@ -36,14 +36,14 @@ public class Main
 
 // Core i3-7300 @ 4 Ghz
 // SimpleElementFinder обрабатывает 1_677_000_0 элементов за 6079 мкс в IDE и за 7814 мкс в Powershell Win10.
-// ThreadPoolElementFinder обрабатывает 1_677_000_0 элементов за 12863 мкс в IDE и за 14539 мкс в Powershell Win10. Но это с volatile.
-// ThreadPoolElementFinder обрабатывает 1_677_000_0 элементов за 6743 мкс в IDE и за 9237 мкс в Powershell Win10. Это с выстрелом в ногу.
-// CustomThreadPoolElementFinder обрабатывает 1_677_000_0 элементов за 14040 мкс в IDE и за 20423 мкс в Powershell Win10. Это печально.
+// ThreadPoolElementFinder (А) обрабатывает 1_677_000_0 элементов за 12863 мкс в IDE и за 14539 мкс в Powershell Win10. Но это с volatile.
+// ThreadPoolElementFinder (Б) обрабатывает 1_677_000_0 элементов за 6743 мкс в IDE и за 9237 мкс в Powershell Win10. Это с выстрелом в ногу.
+// CustomThreadPoolElementFinder (А) обрабатывает 1_677_000_0 элементов за 14040 мкс в IDE и за 20423 мкс в Powershell Win10. Это печально.
+// CustomThreadPoolElementFinder (Б) обрабатывает 1_677_000_0 элементов за 3293 мкс в IDE и за 6265 мкс в Powershell Win10. Это вин!
 //
-// Вывод: я не умею в многопоточную джаву.
-//
-//  SimpleElementFinder 1_000_000 за 517 мкс.
-//  Слегка поправленный ThreadPoolElementFinder 1_000_000 за 2349 мкс.
-//  Жутко кривой CustomThreadPoolElementFinder 1_000_000 за 2833 мкс.
-//  С каждым шагом всё хуже.
-//  Буду доделывать потом...
+// SimpleElementFinder – простейший однопоточный поисковик. 100% КПД от однопоточного. Выигрыш от распараллеливания должен составить 200% КПД.
+// ThreadPoolElementFinder (А) – попытка использовать Java 7 и volatile для остановки. Бегаем в RAM, 50% КПД от однопоточного.
+// ThreadPoolElementFinder (Б) – попытка использовать Java 7 и Thread::stop для остановки. Не бегаем в RAM за флагом, но общие данные и скачем по памяти. 100% КПД от однопоточного.
+// CustomThreadPoolElementFinder (А) – кривая версия ThreadPoolElementFinder (Б), запускающая лямюда-Runnable в потоках. Общие данные и скачем по памяти. 40% КПД от однопоточного.
+// CustomThreadPoolElementFinder (Б) – полностью переписанная версия на своих собственных потоках. Данные у каждого потока свои, остановка через локальные переменнные. 200% КПД от однопоточного. Ура!
+

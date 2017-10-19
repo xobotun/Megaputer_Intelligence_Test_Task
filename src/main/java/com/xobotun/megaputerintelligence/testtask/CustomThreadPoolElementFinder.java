@@ -1,90 +1,48 @@
 package com.xobotun.megaputerintelligence.testtask;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-// Класс, инкапсулирующий алгоритм поиска требуемого элемента. Сейчас это бессиысленно, но потом здесь будет
-// многопоточный поиск.
 public class CustomThreadPoolElementFinder extends ElementFinder {
-    // Количество потоков, которые будут одновременно работать. Возможно, на одинаковых данных
-    // гипертрединг здесь сможет помочь.
-    private int _numberOfThreads = 2;
+    private int _numberOfThreads = Runtime.getRuntime().availableProcessors();
+    private List<ElementFindingThread> _threadPool;
 
-    // Потоки, которые будут работать за нас.
-    private MyThreadPool _threadPool;
-
-    // Будем хранить состояние объекта. Возможно, потом потребуется создать ElementFinderFactory.
     private float[] _data;
-
-    // Глобальная переменная на несколько потоков, чтобы когда один из потоков нашёл искомый элемент, остальные
-    // прекратили свою работу. Тут стоит вопрос, как сильно повлияет бегание каждый такт в оперативку или L3 кеш
-    // за значением переменной.
-    volatile private boolean _hasDesiredElementBeenFound = false;
-
-    // А почему бы его индекс не вынести сюда? И да, мне не нравится слово Location, но я его уже использую.
-    // Да и комментарии надо было через /** */ сделать. :)
     private int _elementLocation = -1;
+    volatile boolean _hasDesiredElementBeenFound = false;
 
-    // Функция, реализующая суть класса.
-    // @param `data` – входной массив из миллиона элементов.
-    // @return Позиция первого элемента, у которого целая часть равна индексу. Если такого элемента нет,
-    // возвращает `-1`.
     public int GetIndexOfDesiredElement(float[] data) {
         if (data == _data && _hasDesiredElementBeenFound) {
             return _elementLocation;
-        } else {
-            _threadPool = new MyThreadPool(_numberOfThreads);
         }
-
         _data = data;
+        _threadPool = new ArrayList<>(_numberOfThreads);
+        AssignThreads();
 
-        // Назначем потокам количество элемментов для обработки.
-        List<Integer> numberOfElementsPerThread = SplitDataIntoChunks(/*data*/);
-        List<Future<Integer>> results = new ArrayList<>(_numberOfThreads);
+        synchronized (_threadPool) {
+            for (Thread thread : _threadPool)
+                thread.start();
 
-        // Смещение в массиве для поиска элементов.
-        int offset = 0;
-        // Назначем потоку задание.
-        for (Integer numberOfElements : numberOfElementsPerThread) {
-            // Замыкание offset на конкретный поток. Но я всё ещё не уверен в кеш-промахах.
-            int localOffset = offset;
-
-            _threadPool.AddTask(() -> {
-                // Сам поисковый цикл.
-                for (int i = 0; i < numberOfElements; ++i) {
-                    // Сама суть
-                    if (IsElementDesired(localOffset + i, data[localOffset + i])) {
-                        _elementLocation = localOffset + i;
-                        _hasDesiredElementBeenFound = true;
-                        _threadPool.Halt();
-                    }
-                }
-                // Если искомый элемент находится не здесь.
-            });
-
-            // Увеличиваем смещение для следующего потока.
-            offset += numberOfElements;
+            try {
+                _threadPool.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
-        // Ужас!
-        while (!_hasDesiredElementBeenFound) {}
         return _elementLocation;
     }
 
-    // Перенруженная версия `GetIndexOfDesiredElement`. Принимает неразвёрнутый контейнер массива из миллиона
-    // элементов.
-    // @see ElementFinder#GetIndexOfDesiredElement(float[] data)
     public int GetIndexOfDesiredElement(SortedFloatArray data) {
         return GetIndexOfDesiredElement(data.GetData());
     }
 
-    // Функция, распределяющая элементы массива для поиска между потоками.
-    // @param `_data` – входные данные.
-    // @returns список, в котором в равной пропорции распределены количество элементов массива для каждого потока.
     private List<Integer> SplitDataIntoChunks() {
         // Сколько элементов предстоит обработать одному потоку.
         final int fraction = _data.length % _numberOfThreads;
@@ -105,23 +63,49 @@ public class CustomThreadPoolElementFinder extends ElementFinder {
         return result;
     }
 
-    private class MyThreadPool {
-        private List<Thread> _threads;
+    private void AssignThreads() {
+        int offset = 0;
+        List<Integer> numberOfElementsPerThread = SplitDataIntoChunks();
+        for (Integer numberOfElements : numberOfElementsPerThread) {
+            _threadPool.add(new ElementFindingThread(_data, offset, numberOfElements));
+            offset += numberOfElements;
+        }
+    }
 
-        public MyThreadPool(int numberOfThreads) {
-            _threads = new ArrayList<>(numberOfThreads);
+    private void StopThreads() {
+        for (ElementFindingThread thread : _threadPool) {
+            thread._enabled = false;
+        }
+    }
+
+    class ElementFindingThread extends Thread {
+        private float[] _localData;
+        private int _offset;
+        private int _size;
+        public boolean _enabled = true;
+
+        ElementFindingThread(float[] dataToCopy, int offset, int size) {
+            _offset = offset;
+            _size = size;
+            _localData = Arrays.copyOfRange(dataToCopy, offset, offset + size);
         }
 
-        public void AddTask(Runnable task) {
-            Thread thread = new Thread(task);
-            _threads.add(thread);
-            thread.start();
-        }
+        @Override
+        public void run() {
+            for (int i = 0; i < _size; ++i) {
+                if (IsElementDesired(_offset + i, _localData[i])) {
+                    synchronized (_threadPool) {
+                        _elementLocation = _offset + i;
+                        _hasDesiredElementBeenFound = true;
+                        _threadPool.notify();
+                        CustomThreadPoolElementFinder.this.StopThreads();
+                    }
+                }
 
-        public void Halt() {
-            for (Thread thread : _threads) {
-                thread.stop();
+                if (!_enabled)
+                    break;
             }
         }
+
     }
 }
